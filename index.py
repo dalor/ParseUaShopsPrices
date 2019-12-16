@@ -26,10 +26,10 @@ def parse_shop(shop):
     shop_parse = shops.get(shop)
     if not shop_parse:
         return jsonify({'ok': False, 'error': 'No such shop'})
-    # try:
-    return jsonify({'ok': True, 'items': [item.to_json() for item in shop_parse()]})
-    # except:
-    #     return jsonify({'ok': False, 'error': 'Parse error'})
+    try:
+        return jsonify({'ok': True, 'items': [item.to_json() for item in shop_parse()]})
+    except:
+        return jsonify({'ok': False, 'error': 'Parse error'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
