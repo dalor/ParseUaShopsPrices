@@ -1,0 +1,9 @@
+from silpo import parse as silpo_parse
+from megamarket import parse as megamarket_parse
+from metro import parse as metro_parse
+from fozzy import parse as fozzy_parse
+from auchan import parse as auchan_parse
+from novus import parse as novus_parse
+from varus import parse as varus_parse
+from furshet import parse as furshet_parse
+from atb import parse as atb_parse
