@@ -1,8 +1,8 @@
 from db import db
 
-def find(query_={}):
+def find(**kwargs):
     items = []
-    for item in db.items.find(query_, show_record_id=False):
+    for item in db.items.find(**kwargs):
         item['_id'] = str(item['_id'])
         items.append(item)
     return items

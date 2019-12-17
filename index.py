@@ -36,11 +36,15 @@ def parse_shop(shop):
 
 @app.route('/find')
 def find_query():
-    query = request.args.get('query')
-    if query:
+    query_dict = {}
+    for key, value in request.args.items():
         try:
-            query = json.loads(query)
-            return jsonify({'ok': True, 'items': find(query)})
+            query_dict[key] = json.loads(value)
+        except:
+            pass
+    if query_dict:
+        try:
+            return jsonify({'ok': True, 'items': find(**query_dict)})
         except:
             return jsonify({'ok': False, 'error': 'Invalid query'})
     else:

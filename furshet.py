@@ -28,7 +28,7 @@ def parse_page(page):
             old_price = float(old_price_block[0].text + '.' + old_price_block[0].xpath('.//sup')[0].text)
         else:
             old_price = None
-        thumbnail = item.xpath('.//div[@class = "img"]/img')[0].get('data-pagespeed-lazy-src')
+        thumbnail = item.xpath('.//div[@class = "img"]/img')[0].get('src')
         items.append(Item('furshet', title, price, old_price, None, thumbnail, None, None))
 
     return items
