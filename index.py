@@ -1,5 +1,8 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from parse import *
+from query import find
+
+import json
 
 import os
 
@@ -30,6 +33,18 @@ def parse_shop(shop):
         return jsonify({'ok': True, 'items': [item.to_json() for item in shop_parse()]})
     except:
         return jsonify({'ok': False, 'error': 'Parse error'})
+
+@app.route('/find')
+def find_query():
+    query = request.args.get('query')
+    if query:
+        try:
+            query = json.loads(query)
+            return jsonify({'ok': True, 'items': find(query)})
+        except:
+            return jsonify({'ok': False, 'error': 'Invalid query'})
+    else:
+        return jsonify({'ok': False, 'error': 'No query'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))

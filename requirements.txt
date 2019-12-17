@@ -3,3 +3,5 @@ lxml
 grequests
 flask
 pyOpenSSL
+pymongo
+APScheduler
