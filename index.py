@@ -21,22 +21,11 @@ shops = {
     'varus': varus_parse
 }
 
-def add_cross_origin(func):
-    def new(*args, **kwargs):
-        resp = func(*args, **kwargs)
-        resp.headers['Access-Control-Allow-Origin'] = '*'
-        resp.headers['Access-Control-Allow-Credentials'] = 'true'
-        return resp
-    new.__name__ = func.__name__ + '_new'
-    return new
-
 @app.route('/shops')
-@add_cross_origin
 def shops_list():
     return jsonify({'ok': True, 'shops': list(shops.keys())})
 
 @app.route('/shop/<shop>')
-@add_cross_origin
 def parse_shop(shop):
     shop_parse = shops.get(shop)
     if not shop_parse:
@@ -47,7 +36,6 @@ def parse_shop(shop):
         return jsonify({'ok': False, 'error': 'Parse error'})
 
 @app.route('/find')
-@add_cross_origin
 def find_query():
     query_dict = {}
     for key, value in request.args.items():
