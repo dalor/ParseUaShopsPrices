@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from parse import *
-from query import find
+from query import find, count
 from flask_cors import CORS
 import json
 
@@ -35,21 +35,36 @@ def parse_shop(shop):
     except:
         return jsonify({'ok': False, 'error': 'Parse error'})
 
+
+def prepare_query(func):
+    def new():
+        query_dict = {}
+        for key, value in request.args.items():
+            try:
+                query_dict[key] = json.loads(value)
+            except:
+                pass
+        if query_dict:
+            try:
+                result = func(**query_dict)
+                result['ok'] = True
+                return jsonify(result)
+            except:
+                return jsonify({'ok': False, 'error': 'Invalid query'})
+        else:
+            return jsonify({'ok': False, 'error': 'No query'})
+    new.__name__ = func.__name__ + '_new'
+    return new
+
 @app.route('/find')
-def find_query():
-    query_dict = {}
-    for key, value in request.args.items():
-        try:
-            query_dict[key] = json.loads(value)
-        except:
-            pass
-    if query_dict:
-        try:
-            return jsonify({'ok': True, 'items': find(**query_dict)})
-        except:
-            return jsonify({'ok': False, 'error': 'Invalid query'})
-    else:
-        return jsonify({'ok': False, 'error': 'No query'})
+@prepare_query
+def find_query(**kwargs):
+    return {'items': find(**kwargs)}
+
+@app.route('/count')
+@prepare_query
+def count_query(**kwargs):
+    return {'count': count(**kwargs)}
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))

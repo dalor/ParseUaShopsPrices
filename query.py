@@ -6,3 +6,6 @@ def find(**kwargs):
         item['_id'] = str(item['_id'])
         items.append(item)
     return items
+
+def count(**kwargs):
+    return db.items.count(**kwargs)
