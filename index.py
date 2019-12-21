@@ -1,12 +1,13 @@
 from flask import Flask, jsonify, request
 from parse import *
 from query import find
-
+from flask_cors import CORS
 import json
 
 import os
 
 app = Flask(__name__)
+CORS(app)
 
 shops = {
     'atb': atb_parse,
