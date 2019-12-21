@@ -5,3 +5,4 @@ flask
 pyOpenSSL
 pymongo
 APScheduler
+flask-cors
