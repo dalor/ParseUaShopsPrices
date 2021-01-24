@@ -1,7 +1,7 @@
 import json
 
 class Item:
-    def __init__(self, shop, title, price, old_price, url, thumbnail, category, description):
+    def __init__(self, shop, title, price, old_price=None, url=None, thumbnail=None, category=None, description=None, unit=None, weight=None):
         self.title = title
         self.price = price
         self.old_price = old_price
@@ -10,6 +10,8 @@ class Item:
         self.category = category
         self.shop = shop
         self.description = description
+        self.unit = unit
+        self.weight = weight
 
     def __repr__(self):
         return json.dumps(self.to_json())
@@ -23,5 +25,7 @@ class Item:
             'url': self.url,
             'thumbnail': self.thumbnail,
             'category': self.category,
-            'description': self.description
+            'description': self.description,
+            'unit': self.unit,
+            'weight': self.weight
         }
