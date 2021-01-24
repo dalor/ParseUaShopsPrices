@@ -20,9 +20,15 @@ shops = {
     'varus': varus_parse
 }
 
+
 @app.route('/shops')
 def shops_list():
-    return jsonify({'ok': True, 'shops': list(shops.keys())})
+    return jsonify({'ok': True, 'shops': [
+        {
+            'name': shop
+        }
+        for shop in shops.keys()]})
+
 
 @app.route('/shop/<shop>')
 def parse_shop(shop):
