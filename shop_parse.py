@@ -6,3 +6,5 @@ from parsers.zakaz.megamarket import parse as megamarket_parse
 from parsers.zakaz.metro import parse as metro_parse
 from parsers.zakaz.novus import parse as novus_parse
 from parsers.zakaz.varus import parse as varus_parse
+
+from parsers.zakaz.all import parse as zakaz_all_parse

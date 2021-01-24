@@ -17,7 +17,8 @@ shops = {
     'megamarket': megamarket_parse,
     'metro': metro_parse,
     'novus': novus_parse,
-    'varus': varus_parse
+    'varus': varus_parse,
+    'zakaz_all': zakaz_all_parse
 }
 
 

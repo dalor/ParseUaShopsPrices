@@ -1,8 +1,6 @@
 from item import Item
-
-import requests
-import grequests
-
+import asyncio
+import aiohttp
 
 def parse_page(shop, page):
     items = []
@@ -14,7 +12,7 @@ def parse_page(shop, page):
     return items
 
 
-def parse(shop, path='products/promotion'):
+async def prepare_requests(session, shop, path):
 
     if not 'products' in path:
         path += '/products'
@@ -26,9 +24,15 @@ def parse(shop, path='products/promotion'):
         'Accept-Language': 'uk'
     }
 
-    response = requests.get(base_url, headers=headers).json()
+    async def get(url):
+        async with session.get(url, headers=headers) as resp:
+            json_ = await resp.json()
+            if not 'errors' in json_:
+                return json_
 
-    if 'errors' in response:
+    response = await get(base_url)
+
+    if not response:
         return []
 
     items = parse_page(shop, response)
@@ -36,16 +40,37 @@ def parse(shop, path='products/promotion'):
     pages = response['count'] // len(response['results']) + \
         (1 if response['count'] % len(response['results']) else 0)
 
-    reqs = [grequests.get(
-        base_url + f'?page={pnum}', headers=headers) for pnum in range(2, pages + 1)]
+    resps = await asyncio.gather(*[get(
+        base_url + f'?page={pnum}') for pnum in range(2, pages + 1)])
 
-    for response in grequests.map(reqs):
-        if response:
-            items.extend(parse_page(shop, response.json()))
+    for resp in resps:
+        if resp:
+            items.extend(parse_page(shop, resp))
 
     return items
 
+
+def parse(shops, path='products/promotion'):
+
+    async def load_all():
+
+        items = []
+
+        async with aiohttp.ClientSession() as session:
+
+            for items_ in await asyncio.gather(*[prepare_requests(session, shop, path) for shop in shops]):
+                items.extend(items_)
+
+        return items
+
+    loop = asyncio.new_event_loop()
+    return loop.run_until_complete(load_all())
+
+
 def make_parser(shop):
+
+    if not type(shop) is list:
+        shop = [shop]
 
     def parser(path='products/promotion', **kwargs):
         return parse(shop, path)
