@@ -2,6 +2,7 @@ from item import Item
 import asyncio
 import aiohttp
 
+
 def parse_page(shop, page):
     items = []
 
@@ -12,10 +13,19 @@ def parse_page(shop, page):
     return items
 
 
-async def prepare_requests(session, shop, path):
+async def prepare_requests(session, shop, path, search, page, category, all):
 
-    if not 'products' in path:
-        path += '/products'
+    params = {}
+
+    if all:
+        page = None
+
+    if search:
+        path = 'products/search'
+        params['q'] = search
+
+    if category:
+        path = 'categories/{}/products'.format(category)
 
     base_url = 'https://stores-api.zakaz.ua/stores/default/' + path
 
@@ -24,33 +34,48 @@ async def prepare_requests(session, shop, path):
         'Accept-Language': 'uk'
     }
 
-    async def get(url):
-        async with session.get(url, headers=headers) as resp:
+    if page:
+        params['page'] = page
+
+    async def get(page=None):
+        paramss = params.copy()
+        if page:
+            paramss['page'] = page
+        async with session.get(base_url, headers=headers, params=paramss) as resp:
             json_ = await resp.json()
             if not 'errors' in json_:
                 return json_
 
-    response = await get(base_url)
+    response = await get()
 
     if not response:
         return []
 
     items = parse_page(shop, response)
 
-    pages = response['count'] // len(response['results']) + \
-        (1 if response['count'] % len(response['results']) else 0)
+    if all:
 
-    resps = await asyncio.gather(*[get(
-        base_url + f'?page={pnum}') for pnum in range(2, pages + 1)])
+        try:
 
-    for resp in resps:
-        if resp:
-            items.extend(parse_page(shop, resp))
+            pages = response['count'] // len(response['results']) + \
+                (1 if response['count'] % len(response['results']) else 0)
+
+        except ZeroDivisionError:
+
+            pages = 0
+
+        print(pages, [pnum for pnum in range(2, pages + 1)])
+
+        resps = await asyncio.gather(*[get(page=pnum) for pnum in range(2, pages + 1)])
+
+        for resp in resps:
+            if resp:
+                items.extend(parse_page(shop, resp))
 
     return items
 
 
-def parse(shops, path='products/promotion'):
+def parse(shops, path='products/promotion', search=None, page=None, category=None, all=False, **kwargs):
 
     async def load_all():
 
@@ -58,7 +83,7 @@ def parse(shops, path='products/promotion'):
 
         async with aiohttp.ClientSession() as session:
 
-            for items_ in await asyncio.gather(*[prepare_requests(session, shop, path) for shop in shops]):
+            for items_ in await asyncio.gather(*[prepare_requests(session, shop, path, search, page, category, all) for shop in shops]):
                 items.extend(items_)
 
         return items
@@ -72,7 +97,7 @@ def make_parser(shop):
     if not type(shop) is list:
         shop = [shop]
 
-    def parser(path='products/promotion', **kwargs):
-        return parse(shop, path)
+    def parser(**kwargs):
+        return parse(shop, **kwargs)
 
     return parser
