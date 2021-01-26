@@ -26,9 +26,10 @@ shops = {
 def shops_list():
     return jsonify({'ok': True, 'shops': [
         {
-            'name': shop
+            'name': shop_name,
+            'title': shop['title']
         }
-        for shop in shops.keys()]})
+        for shop_name, shop in shops.items()]})
 
 def send_parsed(parser):
     try:
