@@ -64,8 +64,6 @@ async def prepare_requests(session, shop, path, search, page, category, all):
 
             pages = 0
 
-        print(pages, [pnum for pnum in range(2, pages + 1)])
-
         resps = await asyncio.gather(*[get(page=pnum) for pnum in range(2, pages + 1)])
 
         for resp in resps:
